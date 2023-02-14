@@ -16,6 +16,7 @@
 
 #include "shell.hpp"
 
+#include <fstream>
 #include <iostream>
 
 #include "token.hpp"
@@ -33,41 +34,60 @@ void Shell::Run() const noexcept
     try {
         m_Args.empty() ? RunInteractive() : RunScript();
     } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Error occurred: \"" << e.what() << "\"" << std::endl;
     }
 }
 
-[[noreturn]] void Shell::RunInteractive() const
+void Shell::RunInteractive() const
 {
     while (true) {
         std::cout << "@ ";
-        std::string input;
-        std::getline(std::cin, input);
-        auto tokens = tokenize(input);
-        for (const auto& item : tokens) {
-            switch (item.GetType()) {
-            case Token::Type::INPUT_REDIRECTION:
-                std::cout << "INPUT_REDIRECTION" << std::endl;
-                break;
+        std::string command;
+        std::getline(std::cin, command);
+        ProcessCommand(std::move(command));
+    }
+}
 
-            case Token::Type::OUTPUT_REDIRECTION:
-                std::cout << "OUTPUT_REDIRECTION" << std::endl;
-                break;
-
-            case Token::Type::ERROR_REDIRECTION:
-                std::cout << "ERROR_REDIRECTION" << std::endl;
-                break;
-
-            case Token::Type::PIPE:
-                std::cout << "PIPE" << std::endl;
-                break;
-
-            case Token::Type::WORD:
-                std::cout << "WORD " << item.GetWord() << std::endl;
-                break;
+void Shell::RunScript() const
+{
+    for (const auto& arg : m_Args) {
+        std::ifstream script { arg.data() };
+        if (script.is_open()) {
+            std::string command;
+            while (std::getline(script, command)) {
+                ProcessCommand(std::move(command));
             }
+        } else {
+            std::cerr << "Failed to open \"" << arg << "\"" << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
 }
 
-void Shell::RunScript() const { }
+void Shell::ProcessCommand(std::string&& command) const
+{
+    auto tokens = tokenize(command);
+    for (const auto& item : tokens) {
+        switch (item.GetType()) {
+        case Token::Type::INPUT_REDIRECTION:
+            std::cout << "INPUT_REDIRECTION" << std::endl;
+            break;
+
+        case Token::Type::OUTPUT_REDIRECTION:
+            std::cout << "OUTPUT_REDIRECTION" << std::endl;
+            break;
+
+        case Token::Type::ERROR_REDIRECTION:
+            std::cout << "ERROR_REDIRECTION" << std::endl;
+            break;
+
+        case Token::Type::PIPE:
+            std::cout << "PIPE" << std::endl;
+            break;
+
+        case Token::Type::WORD:
+            std::cout << "WORD " << item.GetWord() << std::endl;
+            break;
+        }
+    }
+}

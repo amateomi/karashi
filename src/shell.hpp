@@ -17,6 +17,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 class Shell {
@@ -27,8 +28,9 @@ public:
 
 private:
     [[noreturn]] void RunInteractive() const;
-
     void RunScript() const;
 
-    std::vector<std::string> m_Args;
+    void ProcessCommand(std::string&& command) const;
+
+    std::vector<std::string_view> m_Args;
 };

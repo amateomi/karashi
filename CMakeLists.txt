@@ -3,11 +3,10 @@ cmake_minimum_required(VERSION 3.24)
 project(sheru
         VERSION 0.2.0
         DESCRIPTION "Linux Shell"
+        HOMEPAGE_URL "https://github.com/amateomi/karashi"
         LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED true)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(SetupCxx)
 
-add_executable(${PROJECT_NAME} src/main.cpp src/shell.hpp src/shell.cpp src/token.cpp src/token.hpp)
+add_subdirectory(src)

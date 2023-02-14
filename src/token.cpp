@@ -45,6 +45,7 @@ const std::string& Token::GetWord() const
 
 std::vector<Token> tokenize(std::string_view command) noexcept
 {
+    // Match words separated by whitespaces and text enclosed in quotes
     const std::regex re { "[^\\s\"']+|\"([^\"]*)\"|'([^']*)'" };
     const auto begin = std::regex_token_iterator { command.begin(), command.end(), re };
     const auto end = std::cregex_token_iterator {};
